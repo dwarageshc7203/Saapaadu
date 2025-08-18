@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Saapaadu - Customer Dashboard</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Arial', sans-serif;
+    }
+    #map {
+      height: 100vh;
+      width: 100%;
+      z-index: 1;
+    }
+    #sidebar {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 400px;
+      height: 100%;
+      background: rgba(255,255,255,0.95);
+      overflow-y: auto;
+      padding: 20px;
+      z-index: 1000;
+      box-shadow: -4px 0 10px rgba(0,0,0,0.2);
+    }
+    .hotspot-card {
+      border-bottom: 1px solid #ddd;
+      padding: 15px 0;
+    }
+    .hotspot-card:last-child {
+      border-bottom: none;
+    }
+    .hotspot-card h3 {
+      margin: 0;
+      font-size: 1.2em;
+    }
+    .hotspot-card p {
+      margin: 4px 0;
+    }
+    .book-btn {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.3s ease;
+    }
+    .book-btn:hover {
+      background: #218838;
+    }
+    #bookingModal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background: rgba(0,0,0,0.6);
+    }
+    #bookingModal .modal-content {
+      background: white;
+      margin: 10% auto;
+      padding: 20px;
+      width: 80%;
+      max-width: 400px;
+      border-radius: 8px;
+      position: relative;
+    }
+    .close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<div id="sidebar">
+  <h2>Available Leftover Meals</h2>
+  <div id="hotspotList"></div>
+</div>
+
+<!-- Booking Modal -->
+<div id="bookingModal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h3>Confirm Booking</h3>
+    <p id="modalMealName"></p>
+    <label>Quantity:</label>
+    <input type="number" id="bookingQty" min="1" value="1" style="width: 60px; margin: 10px 0;" />
+    <br>
+    <button class="book-btn" onclick="confirmBooking()">Confirm</button>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+  const hotspots = [
+    {
+      name: "A2B Restaurant",
+      address: "MG Road, Chennai",
+      food_name: "Vegetable Biryani",
+      available_quantity: 10,
+      price_per_unit: 60,
+      hours_left: 2,
+      lat: 13.0827,
+      lng: 80.2707
+    },
+    {
+      name: "Hotel Saravana Bhavan",
+      address: "T Nagar, Chennai",
+      food_name: "Idli Set",
+      available_quantity: 15,
+      price_per_unit: 30,
+      hours_left: 1,
+      lat: 13.0455,
+      lng: 80.2337
+    }
+  ];
+
+  const map = L.map('map').setView([13.0827, 80.2707], 13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  function addHotspotsToMap(data) {
+    data.forEach(hotspot => {
+      const marker = L.marker([hotspot.lat, hotspot.lng]).addTo(map);
+      marker.bindPopup(`<strong>${hotspot.name}</strong><br>${hotspot.food_name}<br>₹${hotspot.price_per_unit}`);
+    });
+  }
+
+  function displayHotspots(data) {
+    const list = document.getElementById('hotspotList');
+    list.innerHTML = '';
+
+    data.forEach((hotspot, index) => {
+      const card = document.createElement('div');
+      card.className = 'hotspot-card';
+      card.innerHTML = `
+        <h3>${hotspot.food_name}</h3>
+        <p><strong>Vendor:</strong> ${hotspot.name}</p>
+        <p><strong>Location:</strong> ${hotspot.address}</p>
+        <p><strong>Qty Available:</strong> ${hotspot.available_quantity}</p>
+        <p><strong>Price:</strong> ₹${hotspot.price_per_unit}</p>
+        <p><strong>Expires in:</strong> ${hotspot.hours_left} hr(s)</p>
+        <button class="book-btn" onclick="openModal(${index})">Book</button>
+      `;
+      list.appendChild(card);
+    });
+  }
+
+  function openModal(index) {
+    const item = hotspots[index];
+    document.getElementById('modalMealName').innerText = `${item.food_name} from ${item.name}`;
+    document.getElementById('bookingQty').value = 1;
+    document.getElementById('bookingModal').style.display = 'block';
+    document.getElementById('bookingModal').dataset.index = index;
+  }
+
+  function closeModal() {
+    document.getElementById('bookingModal').style.display = 'none';
+  }
+
+  function confirmBooking() {
+    const index = document.getElementById('bookingModal').dataset.index;
+    const qty = parseInt(document.getElementById('bookingQty').value, 10);
+    const item = hotspots[index];
+    
+    if (qty > 0 && qty <= item.available_quantity) {
+      alert(`Booked ${qty}x ${item.food_name} from ${item.name} for ₹${qty * item.price_per_unit}`);
+      closeModal();
+    } else {
+      alert("Invalid quantity selected.");
+    }
+  }
+
+  addHotspotsToMap(hotspots);
+  displayHotspots(hotspots);
+</script>
+
+</body>
+</html>
