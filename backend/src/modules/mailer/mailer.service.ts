@@ -4,6 +4,9 @@ import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class MailerService {
+  sendHotspotNotification(email: string, shopName: string) {
+    throw new Error('Method not implemented.');
+  }
   private transporter;
 
   constructor() {

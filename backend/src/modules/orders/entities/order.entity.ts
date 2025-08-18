@@ -1,32 +1,48 @@
+// backend/src/modules/orders/entities/order.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Customer } from 'src/modules/customer/entities/customer.entity';
 import { Vendor } from 'src/modules/vendor/entities/vendor.entity';
+import { Hotspot } from 'src/modules/hotspots/entities/hotspot.entity';
 
 @Entity()
 export class Order {
   @PrimaryGeneratedColumn()
   oid: number;
 
-  @Column() cid: number;
+  @Column()
+  cid: number;
 
-  @ManyToOne(() => Customer, (c) => c.orders, { onDelete: 'SET NULL', nullable: true })
+  @ManyToOne(() => Customer, (c) => c.orders, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'cid' })
-  customer: Customer | null;
+  customer: Customer;
 
-  @Column() uid: number; // redun: user id if needed for audit
+  @Column()
+  vid: number;
 
-  @Column() mealName: string;
-  @Column('int') mealCount: number;
-
-  @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
-  otime: Date;
-
-  @Column('decimal', { precision: 10, scale: 2 }) price: number;
-
-  // link order to vendor (useful for vendor bookings)
-  @Column({ nullable: true }) vid?: number;
-
-  @ManyToOne(() => Vendor, (v) => v.orders, { nullable: true })
+  @ManyToOne(() => Vendor, (v) => v.orders, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'vid' })
-  vendor?: Vendor | null;
+  vendor: Vendor;
+
+  @Column()
+  hid: number;
+
+  @ManyToOne(() => Hotspot, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'hid' })
+  hotspot: Hotspot;
+
+  @Column('int')
+  quantity: number;
+
+  @Column('decimal', { precision: 10, scale: 2 })
+  totalPrice: number;
+
+  @Column({
+    type: 'enum',
+    enum: ['pending', 'confirmed', 'completed', 'cancelled'],
+    default: 'pending',
+  })
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
 }

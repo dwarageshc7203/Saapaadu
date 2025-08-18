@@ -1,99 +1,89 @@
-import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-import axios from "axios";
-import { useAuth } from "../../context/AuthContext";
+import { useEffect, useState } from 'react';
+import { api } from '../../api/axios';
+import type { Hotspot, VegType } from '../../types';
 
-const VendorHotspots = () => {
-  const { token } = useAuth();
-  const [hotspots, setHotspots] = useState<any[]>([]);
-  const [position, setPosition] = useState<[number, number]>([12.9716, 77.5946]); // default Bangalore
-  const [newHotspot, setNewHotspot] = useState<[number, number] | null>(null);
+type FormState = {
+  mealName: string;
+  mealCount: number;
+  price: number;
+  duration: number;
+  veg_nonveg: VegType;
+};
 
-  // custom icon
-  const hotspotIcon = new L.Icon({
-    iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
-    iconSize: [30, 30],
-  });
+const initialForm: FormState = {
+  mealName: '',
+  mealCount: 10,
+  price: 100,
+  duration: 60,
+  veg_nonveg: 'veg',
+};
 
-  useEffect(() => {
-    axios
-      .get("/hotspots")
-      .then((res) => setHotspots(res.data))
-      .catch((err) => console.error(err));
-  }, []);
+export default function VendorHotspots() {
+  const [items, setItems] = useState<Hotspot[]>([]);
+  const [form, setForm] = useState<FormState>(initialForm);
+  const [loading, setLoading] = useState(false);
 
-  const addHotspot = async (name: string) => {
-    if (!newHotspot) return;
+  const load = async () => {
+    const { data } = await api.get<Hotspot[]>('/hotspots'); // You may expose /hotspots/my for vendor-owned
+    setItems(data);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const createHotspot = async () => {
     try {
-      const res = await axios.post(
-        "/hotspots",
-        { name, latitude: newHotspot[0], longitude: newHotspot[1] },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setHotspots([...hotspots, res.data]);
-      setNewHotspot(null);
-    } catch (err) {
-      console.error(err);
+      setLoading(true);
+      // Backend will fill shop/vendor details from vendor profile.
+      await api.post('/hotspots', form);
+      await load();
+      setForm(initialForm);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // click handler for map
-  const MapClickHandler = () => {
-    useMapEvents({
-      click(e) {
-        setNewHotspot([e.latlng.lat, e.latlng.lng]);
-      },
-    });
-    return null;
+  const removeHotspot = async (hid: number) => {
+    await api.delete(`/hotspots/${hid}`);
+    await load();
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Manage Hotspots</h1>
+    <div className="p-4 space-y-4">
+      <div className="font-semibold text-lg">Your Hotspots</div>
 
-      <MapContainer center={position} zoom={13} style={{ height: "500px", width: "100%" }}>
-        <TileLayer
-          attribution='&copy; <a href="http://osm.org">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+      {/* Create form */}
+      <div className="grid gap-2 max-w-md">
+        <input className="border p-2 rounded" placeholder="Meal name" value={form.mealName}
+               onChange={(e) => setForm(f => ({ ...f, mealName: e.target.value }))} />
+        <input className="border p-2 rounded" placeholder="Meal count" type="number" value={form.mealCount}
+               onChange={(e) => setForm(f => ({ ...f, mealCount: Number(e.target.value) }))} />
+        <input className="border p-2 rounded" placeholder="Price (₹)" type="number" value={form.price}
+               onChange={(e) => setForm(f => ({ ...f, price: Number(e.target.value) }))} />
+        <input className="border p-2 rounded" placeholder="Duration (min)" type="number" value={form.duration}
+               onChange={(e) => setForm(f => ({ ...f, duration: Number(e.target.value) }))} />
+        <select className="border p-2 rounded" value={form.veg_nonveg}
+                onChange={(e) => setForm(f => ({ ...f, veg_nonveg: e.target.value as VegType }))}>
+          <option value="veg">Veg</option>
+          <option value="nonveg">Non-Veg</option>
+        </select>
+        <button disabled={loading} onClick={createHotspot} className="bg-black text-white px-4 py-2 rounded">
+          {loading ? 'Creating…' : 'Create Hotspot'}
+        </button>
+      </div>
 
-        <MapClickHandler />
-
-        {hotspots.map((h) => (
-          <Marker key={h.id} position={[h.latitude, h.longitude]} icon={hotspotIcon}>
-            <Popup>{h.name}</Popup>
-          </Marker>
+      {/* List */}
+      <div className="grid gap-2">
+        {items.map(h => (
+          <div key={h.hid} className="border rounded p-3 flex justify-between items-center">
+            <div>
+              <div className="font-medium">{h.mealName} — ₹{h.price}</div>
+              <div className="text-sm">{h.shopName} • {h.area}, {h.city} • {h.veg_nonveg}</div>
+              <div className="text-xs">Window: {h.duration} min • Count: {h.mealCount}</div>
+            </div>
+            <button onClick={() => removeHotspot(h.hid)} className="text-red-600">Delete</button>
+          </div>
         ))}
-
-        {newHotspot && (
-          <Marker position={newHotspot} icon={hotspotIcon}>
-            <Popup>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const name = (e.currentTarget.elements.namedItem("name") as HTMLInputElement).value;
-                  addHotspot(name);
-                }}
-              >
-                <input
-                  name="name"
-                  type="text"
-                  placeholder="Hotspot name"
-                  className="border p-1 mb-2 w-full"
-                  required
-                />
-                <button type="submit" className="bg-blue-600 text-white px-3 py-1 rounded">
-                  Save
-                </button>
-              </form>
-            </Popup>
-          </Marker>
-        )}
-      </MapContainer>
+      </div>
     </div>
   );
-};
-
-export default VendorHotspots;
+}

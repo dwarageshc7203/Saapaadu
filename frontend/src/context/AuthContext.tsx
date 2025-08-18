@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import api from '../api/axios';
+import { api } from '@/api/axios';
 
 export type Role = 'customer' | 'vendor' | 'admin';
 
