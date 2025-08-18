@@ -1,52 +1,23 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, IsIn } from 'class-validator';
+import { IsEmail, IsIn, IsNotEmpty, IsOptional, IsNumber, IsString } from 'class-validator';
 
 export class SignupDto {
-  @IsNotEmpty()
-  @IsString()
-  username: string;
+  @IsString() @IsNotEmpty() username: string;
+  @IsEmail() email: string;
+  @IsString() @IsNotEmpty() password: string;
+  @IsIn(['customer', 'vendor', 'admin']) role: 'customer' | 'vendor' | 'admin';
 
-  @IsEmail()
-  @IsNotEmpty()
-  email: string;
+  // common (customer/vendor)
+  @IsOptional() @IsString() phoneNumber?: string;
+  @IsOptional() @IsIn(['veg', 'nonveg']) veg_nonveg?: 'veg' | 'nonveg';
+  @IsOptional() @IsString() address?: string;
+  @IsOptional() @IsString() area?: string;
+  @IsOptional() @IsString() city?: string;
+  @IsOptional() @IsString() state?: string;
 
-  @IsNotEmpty()
-  password: string;
-
-  @IsNotEmpty()
-  @IsIn(['customer', 'vendor'])
-  role: string;
-
-  @IsOptional()
-  phoneNumber?: string;
-
-  @IsOptional()
-  @IsIn(['veg', 'nonveg']) // ✅ enforce correct type
-  veg_nonveg?: 'veg' | 'nonveg';
-
-  @IsOptional()
-  address?: string;
-
-  @IsOptional()
-  area?: string;
-
-  @IsOptional()
-  city?: string;
-
-  @IsOptional()
-  state?: string;
-
-  @IsOptional()
-  shopName?: string;
-
-  @IsOptional()
-  shopAddress?: string;
-
-  @IsOptional()
-  latitude?: number;
-
-  @IsOptional()
-  longitude?: number;
-
-  @IsOptional()
-  shopImage?: string;
+  // vendor-specific
+  @IsOptional() @IsString() shopName?: string;
+  @IsOptional() @IsString() shopAddress?: string;
+  @IsOptional() @IsNumber() latitude?: number;
+  @IsOptional() @IsNumber() longitude?: number;
+  @IsOptional() @IsString() shopImage?: string;
 }

@@ -1,59 +1,35 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
-import { Vendor } from '../../vendor/entities/vendor.entity';
-import { Order } from 'src/modules/orders/entities/order.entity';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Vendor } from 'src/modules/vendor/entities/vendor.entity';
 
 @Entity()
 export class Hotspot {
   @PrimaryGeneratedColumn()
   hid: number;
 
-  @Column()
-  vid: number;
+  @Column() vid: number;
 
-  @ManyToOne(() => Vendor, vendor => vendor.hotspots, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Vendor, (v) => v.hotspots, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'vid' })
   vendor: Vendor;
 
-  @Column()
-  shopName: string;
+  @Column() shopName: string;
+  @Column() shopAddress: string;
+  @Column() area: string;
+  @Column() city: string;
+  @Column() state: string;
 
-  @Column()
-  shopAddress: string;
+  @Column('decimal', { precision: 10, scale: 6, nullable: true }) latitude?: number;
+  @Column('decimal', { precision: 10, scale: 6, nullable: true }) longitude?: number;
 
-  @Column({ nullable: true })
-  area: string;
+  @Column({ nullable: true }) shopImage?: string;
 
-  @Column({ nullable: true })
-  city: string;
-
-  @Column({ nullable: true })
-  state: string;
-
-  @Column('decimal', { precision: 10, scale: 6, nullable: true })
-  latitude: number;
-
-  @Column('decimal', { precision: 10, scale: 6, nullable: true })
-  longitude: number;
-
-  @Column({ nullable: true })
-  shopImage: string;
-
-  @Column({ type: 'enum', enum: ['veg', 'nonveg'], nullable: true })
+  @Column({ type: 'enum', enum: ['veg', 'nonveg'] })
   veg_nonveg: 'veg' | 'nonveg';
 
-  @Column()
-  mealName: string;
+  @Column() mealName: string;
+  @Column('int') mealCount: number;
+  @Column('decimal', { precision: 10, scale: 2 }) price: number;
 
-  @Column()
-  mealCount: number;
-
-  @Column('decimal', { precision: 10, scale: 2 })
-  price: number;
-
-  @Column({ nullable: true })
-  duration: string;
-
-  @OneToMany(() => Order, order => order.hotspot)
-orders: Order[];
-
+  // Duration in minutes (e.g., 60 = 1 hour window)
+  @Column('int') duration: number;
 }

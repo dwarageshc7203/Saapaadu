@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Hotspot } from './entities/hotspot.entity';
-import { HotspotService } from './hotspot.service';
-import { HotspotController } from './hotspot.controller';
+import { HotspotsService } from './hotspot.service';
+import { HotspotsController } from './hotspot.controller';
+import { Vendor } from '../vendor/entities/vendor.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Hotspot])],
-  providers: [HotspotService],
-  controllers: [HotspotController],
-  exports: [HotspotService],
+  imports: [TypeOrmModule.forFeature([Hotspot, Vendor])],
+  providers: [HotspotsService],
+  controllers: [HotspotsController],
+  exports: [HotspotsService],
 })
 export class HotspotModule {}

@@ -1,32 +1,33 @@
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Order } from 'src/modules/orders/entities/order.entity';
 
 @Entity()
 export class Customer {
   @PrimaryGeneratedColumn()
-  id: number;
+  cid: number;
 
-  @ManyToOne(() => User, (user) => user.customers, { onDelete: 'CASCADE' })
-  user: User;   // ✅ single user, not array
+  @Column()
+  uid: number;
+
+  @OneToOne(() => User)
+  @JoinColumn({ name: 'uid' })
+  user: User;
 
   @Column()
   username: string;
 
-  @Column()
+  @Column({ nullable: true })
   phoneNumber: string;
 
-  @Column({ type: 'enum', enum: ['veg', 'nonveg'] })
-  veg_nonveg: 'veg' | 'nonveg';
+  @Column({ type: 'enum', enum: ['veg', 'nonveg'], nullable: true })
+  veg_nonveg?: 'veg' | 'nonveg';
 
-  @Column()
-  address: string;
+  @Column({ nullable: true }) address?: string;
+  @Column({ nullable: true }) area?: string;
+  @Column({ nullable: true }) city?: string;
+  @Column({ nullable: true }) state?: string;
 
-  @Column()
-  area: string;
-
-  @Column()
-  city: string;
-
-  @Column()
-  state: string;
+  @OneToMany(() => Order, (order) => order.customer)
+  orders: Order[];
 }

@@ -12,11 +12,10 @@ export class AuthController {
     return this.authService.signup(dto);
   }
 
-@Post('login')
-async login(@Body() dto: LoginDto) {
-  const user = await this.authService.validateUser(dto.email, dto.password);
-  if (!user) throw new UnauthorizedException('Invalid credentials');
-  return this.authService.login(user);
-}
-
+  @Post('login')
+  async login(@Body() dto: LoginDto) {
+    const user = await this.authService.validateUser(dto.email, dto.password);
+    if (!user) throw new UnauthorizedException('Invalid credentials');
+    return this.authService.login(user);
+  }
 }

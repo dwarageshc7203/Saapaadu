@@ -1,29 +1,37 @@
-import { Controller, Post, Get, Body, Req, UseGuards } from '@nestjs/common';
-import { HotspotService } from './hotspot.service';
+import { Controller, Get, Post, Body, Param, Patch, Delete, UseGuards, Req } from '@nestjs/common';
+import { HotspotsService } from './hotspot.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { CreateHotspotDto } from './dto/create-hotspot.dto';
 
 @Controller('hotspots')
-export class HotspotController {
-  constructor(private readonly hotspotService: HotspotService) {}
+export class HotspotsController {
+  constructor(private readonly service: HotspotsService) {}
 
-  // Public: customers can see all hotspots
   @Get()
-  async getAll() {
-    return this.hotspotService.findAll();
+  findAll() {
+    return this.service.findAll();
   }
 
-  // Vendor: view own hotspots
-  @UseGuards(JwtAuthGuard)
-  @Get('my')
-  async getMyHotspots(@Req() req) {
-    return this.hotspotService.findByVendor(req.user.uid);
-  }
-
-  // Vendor: create new hotspot
   @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Req() req, @Body() dto: CreateHotspotDto) {
-    return this.hotspotService.create(req.user.uid, dto);
+  create(@Req() req: any, @Body() dto: any) {
+    // assume vendor user; you can add a RolesGuard('vendor') if needed
+    return this.service.createFromVendor(req.user.sub, dto);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.service.findOne(+id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  update(@Req() req: any, @Param('id') id: string, @Body() dto: any) {
+    return this.service.updateForVendor(req.user.sub, +id, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  remove(@Req() req: any, @Param('id') id: string) {
+    return this.service.removeForVendor(req.user.sub, +id);
   }
 }

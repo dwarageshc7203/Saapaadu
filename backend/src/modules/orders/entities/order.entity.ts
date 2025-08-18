@@ -1,39 +1,32 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
-import { Customer } from '../../customer/entities/customer.entity';
-import { Hotspot } from '../../hotspots/entities/hotspot.entity';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Customer } from 'src/modules/customer/entities/customer.entity';
+import { Vendor } from 'src/modules/vendor/entities/vendor.entity';
 
 @Entity()
 export class Order {
   @PrimaryGeneratedColumn()
   oid: number;
 
-  @Column()
-  cid: number;
+  @Column() cid: number;
 
-  @ManyToOne(() => Customer, customer => customer.orders, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Customer, (c) => c.orders, { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'cid' })
-  customer: Customer;
+  customer: Customer | null;
 
-  @Column()
-  hid: number;
+  @Column() uid: number; // redun: user id if needed for audit
 
-  @ManyToOne(() => Hotspot, hotspot => hotspot.orders, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'hid' })
-  hotspot: Hotspot;
+  @Column() mealName: string;
+  @Column('int') mealCount: number;
 
-  @Column()
-  mealName: string;
-
-  @Column()
-  mealCount: number;
-
-  @CreateDateColumn()
+  @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   otime: Date;
 
-  @Column('decimal', { precision: 10, scale: 2 })
-  price: number;
+  @Column('decimal', { precision: 10, scale: 2 }) price: number;
 
-  @Column({ default: 'pending' })
-  status: string; // pending | confirmed | completed | cancelled
+  // link order to vendor (useful for vendor bookings)
+  @Column({ nullable: true }) vid?: number;
 
+  @ManyToOne(() => Vendor, (v) => v.orders, { nullable: true })
+  @JoinColumn({ name: 'vid' })
+  vendor?: Vendor | null;
 }
