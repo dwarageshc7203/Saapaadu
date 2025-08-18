@@ -6,6 +6,7 @@ import { User } from '../users/entities/user.entity';
 import { Customer } from '../customer/entities/customer.entity';
 import { Vendor } from '../vendor/entities/vendor.entity';
 import { SignupDto } from './dto/signup.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
@@ -13,57 +14,78 @@ export class AuthService {
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(Customer) private customerRepo: Repository<Customer>,
     @InjectRepository(Vendor) private vendorRepo: Repository<Vendor>,
+    private jwtService: JwtService,
   ) {}
 
   async signup(dto: SignupDto): Promise<User> {
-    // ✅ Check existing user by Email
-    const existing = await this.userRepo.findOne({ where: { Email: dto.email } });
+    // ✅ lowercase email
+    const existing = await this.userRepo.findOne({ where: { email: dto.email } });
     if (existing) throw new ConflictException('Email already registered');
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-    // ✅ Create User
+    // ✅ match User entity fields
     const user = this.userRepo.create({
-      UserName: dto.username,
-      Email: dto.email,
-      Password: hashedPassword,
-      Role: dto.role,
+      username: dto.username,
+      email: dto.email,
+      password: hashedPassword,
+      role: dto.role,
     });
     const savedUser = await this.userRepo.save(user);
 
-    // ✅ If role = customer → create customer linked to user
-if (dto.role === 'customer') {
-  const customer = this.customerRepo.create({
-    user: savedUser,
-    username: dto.username,
-    phoneNumber: dto.phoneNumber,
-    veg_nonveg: dto.veg_nonveg,  // ✅ type-safe now
-    address: dto.address,
-    area: dto.area,
-    city: dto.city,
-    state: dto.state,
-  });
-  await this.customerRepo.save(customer);
-}
+    if (dto.role === 'customer') {
+      const customer = this.customerRepo.create({
+        user: savedUser,
+        username: dto.username,
+        phoneNumber: dto.phoneNumber,
+        veg_nonveg: dto.veg_nonveg,
+        address: dto.address,
+        area: dto.area,
+        city: dto.city,
+        state: dto.state,
+      });
+      await this.customerRepo.save(customer);
+    }
 
-if (dto.role === 'vendor') {
-  const vendor = this.vendorRepo.create({
-    user: savedUser,
-    username: dto.username,
-    phoneNumber: dto.phoneNumber,
-    veg_nonveg: dto.veg_nonveg,  // ✅ type-safe now
-    shopName: dto.shopName,
-    shopAddress: dto.shopAddress,
-    area: dto.area,
-    city: dto.city,
-    state: dto.state,
-    latitude: dto.latitude,
-    longitude: dto.longitude,
-    shopImage: dto.shopImage,
-    verification: false,
-  });
-  await this.vendorRepo.save(vendor);
-}
+    if (dto.role === 'vendor') {
+      const vendor = this.vendorRepo.create({
+        user: savedUser,
+        username: dto.username,
+        phoneNumber: dto.phoneNumber,
+        veg_nonveg: dto.veg_nonveg,
+        shopName: dto.shopName,
+        shopAddress: dto.shopAddress,
+        area: dto.area,
+        city: dto.city,
+        state: dto.state,
+        latitude: dto.latitude,
+        longitude: dto.longitude,
+        shopImage: dto.shopImage,
+        verification: false,
+      });
+      await this.vendorRepo.save(vendor);
+    }
+
     return savedUser;
+  }
+
+  async validateUser(email: string, password: string) {
+    const user = await this.userRepo.findOne({ where: { email } });
+    if (!user) return null;
+
+    // ✅ lowercase password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return null;
+
+    return user;
+  }
+
+  async login(user: User) {
+    // ✅ lowercase email & role
+    const payload = { sub: user.id, email: user.email, role: user.role };
+    return {
+      access_token: this.jwtService.sign(payload),
+      user,
+    };
   }
 }

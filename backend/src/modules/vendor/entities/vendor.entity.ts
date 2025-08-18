@@ -1,28 +1,19 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
-import { Hotspot } from 'src/modules/hotspots/entities/hotspot.entity';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne, JoinColumn } from 'typeorm';
 
 @Entity()
 export class Vendor {
   @PrimaryGeneratedColumn()
-  vid: number;
-
-  @Column()
-  uid: number;
-
-@OneToOne(() => User, { eager: true })
-@JoinColumn({ name: 'uid' })
-user: User;
-
+  id: number;
 
   @Column()
   username: string;
 
-  @Column({ nullable: true })
+  @Column()
   phoneNumber: string;
 
-  @Column({ type: 'enum', enum: ['veg', 'nonveg'], nullable: true })
-  veg_nonveg: 'veg' | 'nonveg';
+  @Column()
+  veg_nonveg: string;
 
   @Column()
   shopName: string;
@@ -30,19 +21,19 @@ user: User;
   @Column()
   shopAddress: string;
 
-  @Column({ nullable: true })
+  @Column()
   area: string;
 
-  @Column({ nullable: true })
+  @Column()
   city: string;
 
-  @Column({ nullable: true })
+  @Column()
   state: string;
 
-  @Column('decimal', { precision: 10, scale: 6, nullable: true })
+  @Column('decimal', { precision: 10, scale: 6 })
   latitude: number;
 
-  @Column('decimal', { precision: 10, scale: 6, nullable: true })
+  @Column('decimal', { precision: 10, scale: 6 })
   longitude: number;
 
   @Column({ nullable: true })
@@ -51,6 +42,7 @@ user: User;
   @Column({ default: false })
   verification: boolean;
 
-  @OneToMany(() => Hotspot, (hotspot) => hotspot.vendor)
-  hotspots: Hotspot[];
+  @OneToOne(() => User, (user) => user.vendor)
+  @JoinColumn()
+  user: User;
 }

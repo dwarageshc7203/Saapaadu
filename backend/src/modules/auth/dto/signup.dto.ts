@@ -1,27 +1,28 @@
-import { IsEmail, IsNotEmpty, IsString, IsIn, IsOptional } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, IsIn } from 'class-validator';
 
 export class SignupDto {
   @IsNotEmpty()
   @IsString()
   username: string;
 
-  @IsNotEmpty()
-  @IsString()
-  password: string;
-
   @IsEmail()
+  @IsNotEmpty()
   email: string;
 
+  @IsNotEmpty()
+  password: string;
+
+  @IsNotEmpty()
   @IsIn(['customer', 'vendor'])
   role: string;
 
-  // ✅ Customer-specific
   @IsOptional()
   phoneNumber?: string;
 
   @IsOptional()
+  @IsIn(['veg', 'nonveg']) // ✅ enforce correct type
   veg_nonveg?: 'veg' | 'nonveg';
-  
+
   @IsOptional()
   address?: string;
 
@@ -34,7 +35,6 @@ export class SignupDto {
   @IsOptional()
   state?: string;
 
-  // ✅ Vendor-specific
   @IsOptional()
   shopName?: string;
 

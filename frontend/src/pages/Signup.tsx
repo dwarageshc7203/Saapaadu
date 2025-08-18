@@ -7,34 +7,79 @@ export default function Signup() {
     email: "",
     password: "",
     role: "customer",
+    phoneNumber: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.post("/auth/signup", form);
-      alert("Signup successful! You can now login.");
-    } catch {
-      alert("Signup failed!");
+      const res = await api.post("/auth/signup", form);
+      alert("Signup successful!");
+      console.log(res.data);
+    } catch (err) {
+      alert("Signup failed. Check console.");
+      console.error(err);
     }
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-50">
-      <form onSubmit={handleSignup} className="bg-white p-6 rounded-2xl shadow-lg w-96">
-        <h2 className="text-2xl font-bold mb-4">Signup</h2>
-        <input className="w-full p-2 border rounded mb-3" type="text" name="username" placeholder="Username" value={form.username} onChange={handleChange} />
-        <input className="w-full p-2 border rounded mb-3" type="email" name="email" placeholder="Email" value={form.email} onChange={handleChange} />
-        <input className="w-full p-2 border rounded mb-3" type="password" name="password" placeholder="Password" value={form.password} onChange={handleChange} />
-        <select name="role" value={form.role} onChange={handleChange} className="w-full p-2 border rounded mb-3">
+    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+      <form onSubmit={handleSubmit} className="bg-gray-800 p-8 rounded-lg shadow-md w-96">
+        <h2 className="text-2xl font-bold mb-6 text-center">Signup</h2>
+
+        <input
+          type="text"
+          name="username"
+          placeholder="Username"
+          value={form.username}
+          onChange={handleChange}
+          className="w-full p-2 mb-3 rounded bg-gray-700"
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={form.email}
+          onChange={handleChange}
+          className="w-full p-2 mb-3 rounded bg-gray-700"
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={form.password}
+          onChange={handleChange}
+          className="w-full p-2 mb-3 rounded bg-gray-700"
+        />
+        <select
+          name="role"
+          value={form.role}
+          onChange={handleChange}
+          className="w-full p-2 mb-3 rounded bg-gray-700"
+        >
           <option value="customer">Customer</option>
           <option value="vendor">Vendor</option>
         </select>
-        <button className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600">Signup</button>
+
+        <input
+          type="text"
+          name="phoneNumber"
+          placeholder="Phone Number"
+          value={form.phoneNumber}
+          onChange={handleChange}
+          className="w-full p-2 mb-3 rounded bg-gray-700"
+        />
+
+        <button
+          type="submit"
+          className="w-full bg-green-500 hover:bg-green-600 py-2 rounded font-semibold"
+        >
+          Signup
+        </button>
       </form>
     </div>
   );
