@@ -1,24 +1,13 @@
-import { IsString, IsNumber, IsOptional, IsIn } from 'class-validator';
+// backend/src/modules/hotspots/dto/create-hotspot.dto.ts
+import { IsString, IsNumber } from 'class-validator';
 
 export class CreateHotspotDto {
-  @IsString() shopName: string;
-  @IsString() shopAddress: string;
+  @IsString()
+  name: string;
 
-  @IsOptional() @IsString() area?: string;
-  @IsOptional() @IsString() city?: string;
-  @IsOptional() @IsString() state?: string;
+  @IsNumber()
+  latitude: number;
 
-  @IsOptional() @IsNumber() latitude?: number;
-  @IsOptional() @IsNumber() longitude?: number;
-
-  @IsOptional() @IsString() shopImage?: string;
-
-  @IsOptional() @IsIn(['veg', 'nonveg'])
-  veg_nonveg?: 'veg' | 'nonveg';
-
-  @IsString() mealName: string;
-  @IsNumber() mealCount: number;
-  @IsNumber() price: number;
-
-  @IsOptional() @IsString() duration?: string;
+  @IsNumber()
+  longitude: number;
 }
