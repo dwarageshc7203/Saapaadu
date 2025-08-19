@@ -43,3 +43,12 @@ export interface Customer {
   state?: string;
 }
 
+export interface Order {
+  oid: number;
+  cid: number;
+  uid: number;
+  mealName: string;
+  mealCount: number;
+  otime: string;
+  price: number;
+}

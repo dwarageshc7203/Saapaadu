@@ -1,7 +1,8 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { api } from '@/api/axios';
+// src/context/AuthContext.tsx
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { api } from "@/api/axios";
 
-export type Role = 'customer' | 'vendor' | 'admin';
+export type Role = "customer" | "vendor" | "admin";
 
 export type AuthUser = {
   id: string;
@@ -23,7 +24,7 @@ type AuthCtx = {
 const Ctx = createContext<AuthCtx | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [token, setToken] = useState<string | null>(localStorage.getItem('saapaadu_token'));
+  const [token, setToken] = useState<string | null>(localStorage.getItem("saapaadu_token"));
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -35,11 +36,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
     try {
       setLoading(true);
-      const { data } = await api.get('/auth/me');
+      const { data } = await api.get("/auth/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setUser(data);
     } catch {
       setUser(null);
-      localStorage.removeItem('saapaadu_token');
+      localStorage.removeItem("saapaadu_token");
       setToken(null);
     } finally {
       setLoading(false);
@@ -47,13 +50,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const login = async (jwt: string) => {
-    localStorage.setItem('saapaadu_token', jwt);
+    localStorage.setItem("saapaadu_token", jwt);
     setToken(jwt);
     await refreshMe();
   };
 
   const logout = () => {
-    localStorage.removeItem('saapaadu_token');
+    localStorage.removeItem("saapaadu_token");
     setToken(null);
     setUser(null);
   };
@@ -63,12 +66,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
-  const value = useMemo(() => ({ user, token, loading, login, logout, refreshMe }), [user, token, loading]);
+  const value = useMemo(
+    () => ({ user, token, loading, login, logout, refreshMe }),
+    [user, token, loading]
+  );
+
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 };
 
 export const useAuth = () => {
   const ctx = useContext(Ctx);
-  if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>');
+  if (!ctx) throw new Error("useAuth must be used inside <AuthProvider>");
   return ctx;
 };

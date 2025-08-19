@@ -7,36 +7,40 @@ import DashboardLayout from './components/DashboardLayout';
 // Customer pages
 import CustomerDashboard from './pages/customer/CustomerDashboard';
 import CustomerOrders from './pages/customer/CustomerOrders';
+import CustomerHotspots from './pages/customer/CustomerHostposts';
+import CustomerProfile from './pages/customer/CustomerProfile';
 
 // Vendor pages
 import VendorDashboard from './pages/vendor/VendorDashboard';
 import VendorOrders from './pages/vendor/VendorOrders';
+import VendorHotspots from './pages/vendor/VendorHotspots';
 
-// Admin pages
-//import AdminDashboard from './pages/admin/AdminDashboard';
-//import AdminUsers from './pages/admin/Users';
+// Admin pages (later)
+// import AdminDashboard from './pages/admin/AdminDashboard';
+// import AdminUsers from './pages/admin/Users';
 
-// Auth pages (yours)
+// Auth pages
 import Login from './pages/Login';
 import Signup from './pages/Signup';
-import VendorHotspots from './pages/vendor/VendorHotspots';
-import CustomerHotspots from './pages/customer/CustomerHostposts';
-import CustomerProfile from './pages/customer/CustomerProfile';
+import Homepage from './pages/Homepage';
+import NotFound from './pages/NotFound';
+
 
 function CustomerShell() {
   const menu = [
     { to: '/dashboard/customer', label: 'Overview' },
     { to: '/dashboard/customer/orders', label: 'My Orders' },
-    { to: '/dashboard/customer/map', label: 'Map' },
+    { to: '/customer/hotspots', label: 'Hotspots' },
+    { to: '/customer/profile', label: 'Profile' },
   ];
   return <DashboardLayout menu={menu} />;
 }
-
 
 function VendorShell() {
   const menu = [
     { to: '/dashboard/vendor', label: 'Overview' },
     { to: '/dashboard/vendor/orders', label: 'Orders' },
+    { to: '/dashboard/vendor/hotspots', label: 'Hotspots' },
   ];
   return <DashboardLayout menu={menu} />;
 }
@@ -46,8 +50,10 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         {/* Public */}
+        <Route path="/" element={<Homepage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="*" element={<NotFound />} />
 
         {/* Private */}
         <Route element={<ProtectedRoute />}>
@@ -68,15 +74,12 @@ export default function App() {
             <Route element={<VendorShell />}>
               <Route path="/dashboard/vendor" element={<VendorDashboard />} />
               <Route path="/dashboard/vendor/orders" element={<VendorOrders />} />
-              <Route path="/dashboard/vendor" element={<VendorHotspots />} />
+              <Route path="/dashboard/vendor/hotspots" element={<VendorHotspots />} />
             </Route>
           </Route>
 
-          {/* Admin routes */}
+          {/* Admin routes (later) */}
         </Route>
-
-        {/* Default */}
-        <Route path="*" element={<Login />} />
       </Routes>
     </BrowserRouter>
   );
