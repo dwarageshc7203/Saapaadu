@@ -1,5 +1,6 @@
 import { useState } from "react";
-import api from "../services/api";
+import { api } from "@/api/axios";
+import { useNavigate } from "react-router-dom";
 
 export default function Signup() {
   const [form, setForm] = useState({
@@ -13,12 +14,14 @@ export default function Signup() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const res = await api.post("/auth/signup", form);
       alert("Signup successful!");
+      navigate("/login");
       console.log(res.data);
     } catch (err) {
       alert("Signup failed. Check console.");

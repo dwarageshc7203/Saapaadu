@@ -19,8 +19,9 @@ import VendorOrders from './pages/vendor/VendorOrders';
 // Auth pages (yours)
 import Login from './pages/Login';
 import Signup from './pages/Signup';
-import CustomerMap from './pages/customer/CustomerMap';
 import VendorHotspots from './pages/vendor/VendorHotspots';
+import CustomerHotspots from './pages/customer/CustomerHostposts';
+import CustomerProfile from './pages/customer/CustomerProfile';
 
 function CustomerShell() {
   const menu = [
@@ -57,7 +58,8 @@ export default function App() {
             <Route element={<CustomerShell />}>
               <Route path="/dashboard/customer" element={<CustomerDashboard />} />
               <Route path="/dashboard/customer/orders" element={<CustomerOrders />} />
-              <Route path="/dashboard/customer/map" element={<CustomerMap />} />
+              <Route path="/customer/profile" element={<CustomerProfile />} />
+              <Route path="/customer/hotspots" element={<CustomerHotspots />} />
             </Route>
           </Route>
 

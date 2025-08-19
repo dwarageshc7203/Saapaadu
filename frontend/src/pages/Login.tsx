@@ -11,7 +11,7 @@ export default function Login() {
     e.preventDefault();
     try {
       const res = await api.post("/auth/login", { email, password });
-      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("saapaadu_token", res.data.token);
       navigate("/dashboard");
     } catch (err) {
       alert("Invalid credentials");

@@ -33,6 +33,7 @@ export interface Hotspot {
 
 export interface Customer {
   cid: number;
+  uid: number;
   username: string;
   phoneNumber?: string;
   veg_nonveg?: "veg" | "nonveg";
@@ -41,3 +42,4 @@ export interface Customer {
   city?: string;
   state?: string;
 }
+
