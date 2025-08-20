@@ -1,3 +1,4 @@
+// backend/src/app.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -6,6 +7,7 @@ import { HotspotModule } from './modules/hotspots/hotspot.module';
 import { CustomerModule } from './modules/customer/customer.module';
 import { VendorModule } from './modules/vendor/vendor.module';
 import { OrderModule } from './modules/orders/orders.module';
+import { MailerModule } from './modules/mailer/mailer.module';
 
 @Module({
   imports: [
@@ -40,6 +42,7 @@ import { OrderModule } from './modules/orders/orders.module';
     VendorModule,
     HotspotModule,
     OrderModule,
+    MailerModule, // ✅ import custom mailer module
   ],
 })
 export class AppModule {}

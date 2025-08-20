@@ -217,7 +217,7 @@ export default function CustomerOrders() {
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-gray-400" />
                     <span className="text-sm text-gray-600">
-                      {new Date(order.otime).toLocaleDateString()}
+                      {new Date(order.createdAt).toLocaleDateString()}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -230,7 +230,7 @@ export default function CustomerOrders() {
 
                 <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                   <div className="text-sm text-gray-500">
-                    Order placed at {new Date(order.otime).toLocaleTimeString()}
+                    Order placed at {new Date(order.createdAt).toLocaleTimeString()}
                   </div>
                   <div className="text-lg font-bold text-primary">
                     ₹{order.totalPrice}

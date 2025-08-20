@@ -121,4 +121,33 @@ export class HotspotsService {
     await this.hotspotRepo.remove(hotspot);
     return { message: 'Hotspot deleted successfully' };
   }
+
+async notifyCustomersIfNearby(hotspot: Hotspot) {
+  const customers = await this.customerRepo.find({
+    where: {
+      area: hotspot.area,
+      // use correct preference field if exists
+      veg_nonveg: hotspot.veg_nonveg,
+    },
+    relations: ['user'], // so we can access user.email
+  });
+
+  for (const c of customers) {
+    if (c.user?.email) {
+      await this.mailerService.sendMail({
+        to: c.user.email,
+        subject: `New ${hotspot.veg_nonveg} meal available near you!`,
+        text: `Hi ${c.user.username}, 
+A new meal hotspot is available!
+
+Shop: ${hotspot.shopName}
+Address: ${hotspot.shopAddress}
+Meal: ${hotspot.mealName}
+Price: ₹${hotspot.price}
+
+Hurry before it's gone!`,
+      });
+    }
+  }
+}
 }

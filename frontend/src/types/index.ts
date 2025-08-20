@@ -60,11 +60,11 @@ export interface Order {
   hid: number;
   mealName: string;
   mealCount: number;
-  otime: string;
-  price: number;
+  createdAt: string; // renamed from otime
   totalPrice: number;
   status: "pending" | "confirmed" | "completed" | "cancelled";
   hotspot?: Hotspot;
   customer?: Customer;
   vendor?: Vendor;
 }
+
