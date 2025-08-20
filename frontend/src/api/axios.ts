@@ -1,7 +1,8 @@
 import axios from 'axios';
 
+const base = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
+  baseURL: base.endsWith('/api') ? base : `${base}/api`,
 });
 
 // Optional: attach token if you don’t already in interceptors

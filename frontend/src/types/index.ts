@@ -1,12 +1,22 @@
 // frontend/src/types/index.ts
+export interface User {
+  id: number;
+  email: string;
+  role: "customer" | "vendor" | "admin";
+  username?: string;
+}
+
 export interface Vendor {
   vid: number;
+  uid: number;
   username: string;
-  shopName: string;
-  shopAddress: string;
-  area: string;
-  city: string;
-  state: string;
+  phoneNumber?: string;
+  veg_nonveg?: "veg" | "nonveg";
+  shopName?: string;
+  shopAddress?: string;
+  area?: string;
+  city?: string;
+  state?: string;
   latitude?: number;
   longitude?: number;
   shopImage?: string;
@@ -47,8 +57,14 @@ export interface Order {
   oid: number;
   cid: number;
   uid: number;
+  hid: number;
   mealName: string;
   mealCount: number;
   otime: string;
   price: number;
+  totalPrice: number;
+  status: "pending" | "confirmed" | "completed" | "cancelled";
+  hotspot?: Hotspot;
+  customer?: Customer;
+  vendor?: Vendor;
 }

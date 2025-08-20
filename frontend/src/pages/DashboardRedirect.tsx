@@ -17,11 +17,11 @@ export default function DashboardRedirect() {
 
   switch (user.role as Role) {
     case "customer":
-      return <Navigate to="/customer/dashboard" replace />;
+      return <Navigate to="/dashboard/customer" replace />;
     case "vendor":
-      return <Navigate to="/vendor/dashboard" replace />;
+      return <Navigate to="/dashboard/vendor" replace />;
     case "admin":
-      return <Navigate to="/admin/dashboard" replace />;
+      return <Navigate to="/dashboard" replace />;
     default:
       return <Navigate to="/login" replace />;
   }

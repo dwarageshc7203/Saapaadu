@@ -1,13 +1,11 @@
 // src/context/AuthContext.tsx
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { api } from "@/api/axios";
+import type { User } from "@/types";
 
 export type Role = "customer" | "vendor" | "admin";
 
-export type AuthUser = {
-  id: string;
-  email: string;
-  role: Role;
+export type AuthUser = User & {
   vendorId?: string | null;
   customerId?: string | null;
 };

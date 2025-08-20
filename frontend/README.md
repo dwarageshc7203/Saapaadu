@@ -67,3 +67,13 @@ export default tseslint.config([
   },
 ])
 ```
+
+## Environment
+
+Create a `.env` in `frontend/` (optional) to point to your backend:
+
+```
+VITE_API_URL=http://localhost:3000/api
+```
+
+If omitted, the app defaults to `http://localhost:3000/api`.

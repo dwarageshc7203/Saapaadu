@@ -7,13 +7,14 @@ import DashboardLayout from './components/DashboardLayout';
 // Customer pages
 import CustomerDashboard from './pages/customer/CustomerDashboard';
 import CustomerOrders from './pages/customer/CustomerOrders';
-import CustomerHotspots from './pages/customer/CustomerHostposts';
+import CustomerHotspots from './pages/customer/CustomerHotspots';
 import CustomerProfile from './pages/customer/CustomerProfile';
 
 // Vendor pages
 import VendorDashboard from './pages/vendor/VendorDashboard';
 import VendorOrders from './pages/vendor/VendorOrders';
 import VendorHotspots from './pages/vendor/VendorHotspots';
+import VendorProfile from './pages/vendor/VendorProfile';
 
 // Admin pages (later)
 // import AdminDashboard from './pages/admin/AdminDashboard';
@@ -41,6 +42,7 @@ function VendorShell() {
     { to: '/dashboard/vendor', label: 'Overview' },
     { to: '/dashboard/vendor/orders', label: 'Orders' },
     { to: '/dashboard/vendor/hotspots', label: 'Hotspots' },
+    { to: '/vendor/profile', label: 'Profile' },
   ];
   return <DashboardLayout menu={menu} />;
 }
@@ -75,6 +77,7 @@ export default function App() {
               <Route path="/dashboard/vendor" element={<VendorDashboard />} />
               <Route path="/dashboard/vendor/orders" element={<VendorOrders />} />
               <Route path="/dashboard/vendor/hotspots" element={<VendorHotspots />} />
+              <Route path="/vendor/profile" element={<VendorProfile />} />
             </Route>
           </Route>
 

@@ -96,3 +96,20 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+## Environment
+
+Create a `.env` file in `backend/` with:
+
+```
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+DB_NAME=saapaadu
+JWT_SECRET=dev_secret
+MAIL_USER=
+MAIL_PASS=
+```
+
+Make sure Postgres is running and accessible with the above credentials (or adjust accordingly).

@@ -21,11 +21,11 @@ export class Vendor {
   @Column({ type: 'enum', enum: ['veg', 'nonveg'], nullable: true })
   veg_nonveg?: 'veg' | 'nonveg';
 
-  @Column() shopName: string;
-  @Column() shopAddress: string;
-  @Column() area: string;
-  @Column() city: string;
-  @Column() state: string;
+  @Column({ nullable: true }) shopName: string;
+  @Column({ nullable: true }) shopAddress: string;
+  @Column({ nullable: true }) area: string;
+  @Column({ nullable: true }) city: string;
+  @Column({ nullable: true }) state: string;
 
   @Column('decimal', { precision: 10, scale: 6, nullable: true }) latitude?: number;
   @Column('decimal', { precision: 10, scale: 6, nullable: true }) longitude?: number;

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
 import { HotspotModule } from './modules/hotspots/hotspot.module';
 import { CustomerModule } from './modules/customer/customer.module';
@@ -10,16 +10,31 @@ import { OrderModule } from './modules/orders/orders.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRoot({
-  type: 'postgres',
-  host: process.env.DB_HOST!,   // "!" tells TS we guarantee it's defined
-  port: parseInt(process.env.DB_PORT!, 10),
-  username: process.env.DB_USERNAME!,
-  password: process.env.DB_PASSWORD!,
-  database: process.env.DB_NAME!,
-  autoLoadEntities: true,
-  synchronize: true,
-}),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        const dbType = (config.get<string>('DB_TYPE') || 'postgres').toLowerCase();
+        if (dbType === 'sqlite') {
+          return {
+            type: 'sqlite' as const,
+            database: config.get<string>('DB_PATH') || 'saapaadu.sqlite',
+            autoLoadEntities: true,
+            synchronize: true,
+          };
+        }
+        // default to postgres
+        return {
+          type: 'postgres' as const,
+          host: config.get<string>('DB_HOST'),
+          port: parseInt(config.get<string>('DB_PORT') || '5432', 10),
+          username: config.get<string>('DB_USERNAME'),
+          password: config.get<string>('DB_PASSWORD'),
+          database: config.get<string>('DB_NAME'),
+          autoLoadEntities: true,
+          synchronize: true,
+        };
+      },
+    }),
     AuthModule,
     CustomerModule,
     VendorModule,

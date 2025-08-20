@@ -12,10 +12,16 @@ export class HotspotsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('my')
+  findMine(@Req() req: any) {
+    return this.service.findByVendor(req.user.uid);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Req() req: any, @Body() dto: any) {
     // assume vendor user; you can add a RolesGuard('vendor') if needed
-    return this.service.createFromVendor(req.user.sub, dto);
+    return this.service.createFromVendor(req.user.uid, dto);
   }
 
   @Get(':id')
@@ -26,12 +32,12 @@ export class HotspotsController {
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(@Req() req: any, @Param('id') id: string, @Body() dto: any) {
-    return this.service.updateForVendor(req.user.sub, +id, dto);
+    return this.service.updateForVendor(req.user.uid, +id, dto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Req() req: any, @Param('id') id: string) {
-    return this.service.removeForVendor(req.user.sub, +id);
+    return this.service.removeForVendor(req.user.uid, +id);
   }
 }

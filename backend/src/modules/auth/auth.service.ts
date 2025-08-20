@@ -51,16 +51,7 @@ export class AuthService {
         uid: savedUser.id,
         user: savedUser,
         username: dto.username,
-        phoneNumber: dto.phoneNumber,
-        veg_nonveg: dto.veg_nonveg,
-        shopName: dto.shopName!,
-        shopAddress: dto.shopAddress!,
-        area: dto.area!,
-        city: dto.city!,
-        state: dto.state!,
-        latitude: dto.latitude,
-        longitude: dto.longitude,
-        shopImage: dto.shopImage,
+        // Other fields will be filled in later via profile update
         verification: false,
       });
       await this.vendorRepo.save(vendor);
@@ -69,9 +60,15 @@ export class AuthService {
     return savedUser;
   }
 
-  async validateUser(email: string, password: string) {
+  async validateUser(email: string, password: string, role: string) {
     const user = await this.userRepo.findOne({ where: { email } });
     if (!user) return null;
+    
+    // Check if user role matches the requested role
+    if (user.role !== role) {
+      throw new Error(`User is registered as ${user.role}, not ${role}`);
+    }
+    
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return null;
     return user;

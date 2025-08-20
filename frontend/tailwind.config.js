@@ -1,8 +1,5 @@
-import colors from "tailwindcss/colors"
-
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: ["class"],
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -10,31 +7,39 @@ export default {
   theme: {
     extend: {
       colors: {
-        ...colors, // ✅ bring back default Tailwind colors
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-        card: "var(--card)",
-        "card-foreground": "var(--card-foreground)",
-        popover: "var(--popover)",
-        "popover-foreground": "var(--popover-foreground)",
         primary: "var(--primary)",
-        "primary-foreground": "var(--primary-foreground)",
+        "primary-dark": "var(--primary-dark)",
         secondary: "var(--secondary)",
-        "secondary-foreground": "var(--secondary-foreground)",
-        muted: "var(--muted)",
-        "muted-foreground": "var(--muted-foreground)",
+        "secondary-dark": "var(--secondary-dark)",
         accent: "var(--accent)",
-        "accent-foreground": "var(--accent-foreground)",
-        destructive: "var(--destructive)",
-        border: "var(--border)",
-        input: "var(--input)",
-        ring: "var(--ring)",
+        dark: "var(--dark)",
+        "dark-gray": "var(--dark-gray)",
+        light: "var(--light)",
+        gray: "var(--gray)",
+        white: "var(--white)",
       },
       borderRadius: {
         sm: "var(--radius-sm)",
-        md: "var(--radius-md)",
+        md: "var(--radius)",
         lg: "var(--radius-lg)",
         xl: "var(--radius-xl)",
+      },
+      spacing: {
+        xs: "var(--space-xs)",
+        sm: "var(--space-sm)",
+        md: "var(--space-md)",
+        lg: "var(--space-lg)",
+        xl: "var(--space-xl)",
+      },
+      boxShadow: {
+        sm: "var(--shadow-sm)",
+        md: "var(--shadow)",
+        lg: "var(--shadow-lg)",
+        xl: "var(--shadow-xl)",
+      },
+      fontFamily: {
+        main: "var(--font-main)",
+        code: "var(--font-code)",
       },
     },
   },

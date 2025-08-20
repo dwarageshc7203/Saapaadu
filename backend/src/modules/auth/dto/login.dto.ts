@@ -1,6 +1,12 @@
-import { IsEmail, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsString, IsEnum } from 'class-validator';
 
 export class LoginDto {
-  @IsEmail() email: string;
-  @IsNotEmpty() password: string;
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  password: string;
+
+  @IsEnum(['customer', 'vendor', 'admin'])
+  role: 'customer' | 'vendor' | 'admin';
 }
