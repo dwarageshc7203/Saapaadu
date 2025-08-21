@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Menu, X, ArrowRight, Zap, Check, PhoneCall, Mail, MessageSquare, 
   Users, BarChart3, Target, LineChart, TrendingUp, BarChart2, Award,
-  Heart, ThumbsUp, Send, Save, Clock, User, Sparkles, ArrowLeft, Linkedin, Twitter
+  Heart, Send, Save, Clock, User, Sparkles, ArrowLeft
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -29,12 +29,6 @@ interface StepContentProps {
   onClick: () => void;
 }
 
-interface TouchpointItemProps {
-  type: 'linkedin' | 'twitter' | 'reddit';
-  text: string;
-  subtext: string;
-  timeAgo: string;
-}
 
 // Custom Styles - Inline CSS as a string for easy portability
 const customStyles = `
@@ -128,41 +122,7 @@ const customStyles = `
 `;
 
 // TouchpointItem Component
-const TouchpointItem: React.FC<TouchpointItemProps> = ({ type, text, subtext, timeAgo }) => {
-  const renderIcon = () => {
-    switch (type) {
-      case 'linkedin':
-        return <Linkedin className="w-4 h-4" />;
-      case 'twitter':
-        return <Twitter className="w-4 h-4" />;
-      case 'reddit':
-        return (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <circle cx="12" cy="12" r="6" />
-            <circle cx="12" cy="12" r="2" />
-          </svg>
-        );
-      default:
-        return <div></div>;
-    }
-  };
 
-  return (
-    <div className="flex justify-between bg-white bg-opacity-5 p-3 rounded-lg">
-      <div className="flex items-center">
-        <div className="w-8 h-8 rounded-lg bg-purple-500 bg-opacity-20 text-purple-500 flex items-center justify-center mr-3">
-          {renderIcon()}
-        </div>
-        <div>
-          <span className="text-white text-opacity-90 text-sm">{text}</span>
-          <span className="block text-white text-opacity-60 text-xs">{subtext}</span>
-        </div>
-      </div>
-      <span className="text-white text-opacity-50 text-xs">{timeAgo}</span>
-    </div>
-  );
-};
 
 // StatCard Component
 const StatCard: React.FC<StatCardProps> = ({ value, description, icon }) => {
