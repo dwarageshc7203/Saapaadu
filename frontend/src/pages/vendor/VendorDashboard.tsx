@@ -49,8 +49,8 @@ export default function VendorDashboard() {
       const totalHotspots = hotspots.length;
       const activeHotspots = hotspots.filter((h: Hotspot) => h.mealCount > 0).length;
       const totalOrders = orders.length;
-      const totalRevenue = orders.reduce((sum: number, order: Order) => sum + (order.totalPrice || 0), 0);
-      const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+      const totalRevenue = orders.reduce((sum: number, order: Order) => sum + Number(order.totalPrice?.toString() || 0),0);
+      const averageOrderValue = totalOrders > 0 ? Number(totalRevenue / totalOrders) : 0;
       const pendingOrders = orders.filter((order: Order) => order.status === 'pending').length;
       
       setStats({
@@ -127,8 +127,7 @@ export default function VendorDashboard() {
           <div className="card-body text-center">
             <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
               <TrendingUp className="w-6 h-6 text-accent" />
-            </div>
-            <h3 className="text-2xl font-bold text-dark mb-1">₹{stats.totalRevenue}</h3>
+            </div><h3 className="text-2xl font-bold text-dark mb-1">₹{Number(stats.totalRevenue).toFixed(2)}</h3>
             <p className="text-gray-600">Total Revenue</p>
           </div>
         </div>
@@ -243,7 +242,7 @@ export default function VendorDashboard() {
                       <td className="py-3 px-4 text-sm text-gray-900">#{order.oid}</td>
                       <td className="py-3 px-4 text-sm text-gray-900">{order.mealName}</td>
                       <td className="py-3 px-4 text-sm text-gray-900">{order.mealCount}</td>
-                      <td className="py-3 px-4 text-sm font-medium text-primary">₹{order.totalPrice}</td>
+                      <td className="py-3 px-4 text-sm font-medium text-primary">₹{Number(order.totalPrice).toFixed(2)}</td>
                       <td className="py-3 px-4">
                         <span className={`badge badge-${order.status === 'pending' ? 'warning' : order.status === 'completed' ? 'success' : 'info'}`}>
                           {order.status}

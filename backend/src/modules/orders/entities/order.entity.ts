@@ -1,5 +1,5 @@
 // backend/src/modules/orders/entities/order.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
 import { Customer } from 'src/modules/customer/entities/customer.entity';
 import { Vendor } from 'src/modules/vendor/entities/vendor.entity';
 import { Hotspot } from 'src/modules/hotspots/entities/hotspot.entity';
@@ -23,8 +23,8 @@ export class Order {
   @JoinColumn({ name: 'vid' })
   vendor: Vendor;
 
-  @Column()
-  hid: number;
+@Column({ nullable: true })   // 👈 make hid nullable
+hid: number;x
 
   @ManyToOne(() => Hotspot, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'hid' })
@@ -33,8 +33,12 @@ export class Order {
   @Column('int')
   quantity: number;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal', { precision: 10, scale: 2, transformer: {
+  to: (value: number) => value,             // when saving
+  from: (value: string) => parseFloat(value) // when reading
+  }})
   totalPrice: number;
+
 
   @Column({
     type: 'enum',
@@ -43,6 +47,7 @@ export class Order {
   })
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
+@CreateDateColumn({ type: 'timestamp' })
+createdAt: Date;
+
 }

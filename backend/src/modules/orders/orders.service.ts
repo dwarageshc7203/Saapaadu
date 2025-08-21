@@ -7,10 +7,11 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { Hotspot } from '../hotspots/entities/hotspot.entity';
 import { Customer } from '../customer/entities/customer.entity';
 import { User } from '../users/entities/user.entity';
+import { Vendor } from '../vendor/entities/vendor.entity';
+import { MailerService } from '../mailer/mailer.service';
 
 @Injectable()
 export class OrderService {
-  orderRepository: any;
   constructor(
     @InjectRepository(Order)
     private orderRepo: Repository<Order>,
@@ -20,39 +21,57 @@ export class OrderService {
     private customerRepo: Repository<Customer>,
     @InjectRepository(User)
     private userRepo: Repository<User>,
+     @InjectRepository(Vendor)
+     private readonly vendorRepo: Repository<Vendor>,
+    private readonly mailerService: MailerService,   // ✅ Add this
+
   ) {}
 
-  async create(uid: number, dto: CreateOrderDto): Promise<Order> {
-    // Ensure a customer record exists for this uid
-    let customer = await this.customerRepo.findOne({ where: { uid } });
-    if (!customer) {
-      const user = await this.userRepo.findOne({ where: { id: uid } });
-      if (!user) throw new NotFoundException('User not found');
-      customer = this.customerRepo.create({ uid, user, username: user.username || user.email });
-      customer = await this.customerRepo.save(customer);
-    }
-
-    const hotspot = await this.hotspotRepo.findOne({ where: { hid: dto.hid } });
-    if (!hotspot) throw new NotFoundException('Hotspot not found');
-
-    const totalPrice = Number(hotspot.price) * dto.quantity;
-    const order = this.orderRepo.create({
-      cid: customer.cid,
-      hid: hotspot.hid,
-      vid: hotspot.vid,
-      quantity: dto.quantity,
-      totalPrice,
-    });
-    const saved = await this.orderRepo.save(order);
-
-    // Reduce available meals in the hotspot
-    if (typeof hotspot.mealCount === 'number') {
-      hotspot.mealCount = Math.max(0, (hotspot.mealCount as number) - dto.quantity);
-      await this.hotspotRepo.save(hotspot);
-    }
-
-    return saved;
+async create(uid: number, dto: CreateOrderDto): Promise<Order> {
+  let customer = await this.customerRepo.findOne({ where: { uid } });
+  if (!customer) {
+    const user = await this.userRepo.findOne({ where: { id: uid } });
+    if (!user) throw new NotFoundException('User not found');
+    customer = this.customerRepo.create({ uid, user, username: user.username || user.email });
+    customer = await this.customerRepo.save(customer);
   }
+
+  const hotspot = await this.hotspotRepo.findOne({ where: { hid: dto.hid } });
+  if (!hotspot) throw new NotFoundException('Hotspot not found');
+
+  const totalPrice = Number(hotspot.price) * dto.quantity;
+  const order = this.orderRepo.create({
+    cid: customer.cid,
+    hid: hotspot.hid,
+    vid: hotspot.vid,
+    quantity: dto.quantity,
+    totalPrice,
+  });
+  const saved = await this.orderRepo.save(order);
+
+  if (typeof hotspot.mealCount === 'number') {
+    hotspot.mealCount = Math.max(0, (hotspot.mealCount as number) - dto.quantity);
+    await this.hotspotRepo.save(hotspot);
+  }
+
+  // 🔔 Send hotspot mail notifications
+const customersInArea = await this.customerRepo.find({
+  where: { area: hotspot.area },
+  relations: ['user'],   // ✅ important, otherwise no emails
+});
+
+
+  this.mailerService.notifyCustomersForHotspot(
+    customersInArea,
+    hotspot.shopName,
+    hotspot.mealName,
+    hotspot.price,
+    hotspot.area,
+  ).catch(err => console.error('Mail error:', err));
+
+  return saved;
+}
+
 
 // backend/src/modules/orders/orders.service.ts
 
@@ -62,7 +81,7 @@ async findByCustomer(uid: number) {
 
   const orders = await this.orderRepo.find({
     where: { cid: customer.cid },
-    relations: ['hotspot', 'hotspot.vendor'],
+    relations: ['customer', 'vendor', 'hotspot'], // ✅ use vendor directly
     order: { createdAt: 'DESC' },
   });
 
@@ -74,44 +93,43 @@ async findByCustomer(uid: number) {
     createdAt: order.createdAt,
 
     // hotspot fields
-    mealName: order.hotspot.mealName,
-    mealCount: order.hotspot.mealCount,
-    price: order.hotspot.price,
-    shopName: order.hotspot.shopName,
-    shopAddress: order.hotspot.shopAddress,
-    vendorName: order.hotspot.vendor?.shopName ?? order.hotspot.vendor?.username,
+    mealName: order.hotspot?.mealName ?? null,
+    mealCount: order.hotspot?.mealCount ?? null,
+    price: order.hotspot?.price ?? null,
+    shopName: order.hotspot?.shopName ?? null,
+    shopAddress: order.hotspot?.shopAddress ?? null,
+
+    // vendor fields (use order.vendor directly!)
+    vendorName: order.vendor?.shopName ?? order.vendor?.username ?? null,
   }));
 }
 
-
 async findByVendor(uid: number) {
-  const orders = await this.orderRepo
-    .createQueryBuilder('order')
-    .innerJoinAndSelect('order.hotspot', 'hotspot')
-    .innerJoinAndSelect('hotspot.vendor', 'vendor')
-    .innerJoinAndSelect('order.customer', 'customer') // 👈 include customer
-    .where('vendor.uid = :uid', { uid })
-    .orderBy('order.createdAt', 'DESC')
-    .getMany();
+  const vendor = await this.vendorRepo.findOne({ where: { uid } });
+  if (!vendor) return [];
+
+  const orders = await this.orderRepo.find({
+    where: { vid: vendor.vid },
+    relations: ['customer', 'vendor', 'hotspot'], // ✅
+    order: { createdAt: 'DESC' },
+  });
 
   return orders.map(order => ({
     oid: order.oid,
     status: order.status,
     quantity: order.quantity,
     totalPrice: order.totalPrice,
-    createdAt: order.createdAt?.toISOString(), // 👈 ensure valid date string
+    createdAt: order.createdAt,
 
-    mealName: order.hotspot.mealName,
-    mealCount: order.hotspot.mealCount,
-    price: order.hotspot.price,
-    shopName: order.hotspot.shopName,
-    shopAddress: order.hotspot.shopAddress,
+    mealName: order.hotspot?.mealName ?? null,
+    mealCount: order.hotspot?.mealCount ?? null,
+    price: order.hotspot?.price ?? null,
+    shopName: order.hotspot?.shopName ?? null,
+    shopAddress: order.hotspot?.shopAddress ?? null,
 
     customerName: order.customer?.username ?? `Customer #${order.cid}`,
   }));
 }
-
-
 
   // Fixed update method - this was causing the original error
 async update(oid: number, updateData: UpdateOrderDto | Partial<Order>): Promise<Order | null> {

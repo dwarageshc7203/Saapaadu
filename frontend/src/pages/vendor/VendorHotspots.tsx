@@ -382,9 +382,12 @@ export default function VendorHotspots() {
                      hotspot.veg_nonveg === 'nonveg' ? 'Non-Vegetarian' : 'Both'}
                   </span>
                   <div className="flex items-center gap-1 text-sm text-gray-500">
-                    <Clock className="w-4 h-4" />
-                    <span>{hotspot.duration}h left</span>
-                  </div>
+  <Clock className="w-4 h-4" />
+  <span>
+    {Math.floor(hotspot.duration / 60)}h {hotspot.duration % 60}m left
+  </span>
+</div>
+
                 </div>
 
                 {/* Actions */}

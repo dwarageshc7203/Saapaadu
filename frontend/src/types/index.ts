@@ -54,6 +54,7 @@ export interface Customer {
 }
 
 export interface Order {
+  otime: string | number | Date;
   oid: number;
   cid: number;
   uid: number;
