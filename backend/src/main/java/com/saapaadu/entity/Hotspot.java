@@ -12,6 +12,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 public class Hotspot {
@@ -67,6 +69,10 @@ public class Hotspot {
 
   @Column
   private Integer duration;
+
+  @CreationTimestamp
+  @Column(updatable = false)
+  private LocalDateTime createdAt;
 
   public Long getHid() {
     return hid;
@@ -194,5 +200,13 @@ public class Hotspot {
 
   public void setDuration(Integer duration) {
     this.duration = duration;
+  }
+
+  public LocalDateTime getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
   }
 }

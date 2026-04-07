@@ -5,6 +5,12 @@ import { api } from "@/api/axios";
 import { Clock, CheckCircle, XCircle, AlertCircle, Package, MapPin, Calendar } from "lucide-react";
 import type { Order } from "@/types";
 
+const getOrderDate = (order: Order) => {
+  const timestamp = order.createdAt ?? order.otime;
+  const date = timestamp ? new Date(timestamp) : null;
+  return date && !isNaN(date.getTime()) ? date : null;
+};
+
 interface OrderStats {
   total: number;
   pending: number;
@@ -217,7 +223,7 @@ export default function CustomerOrders() {
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-gray-400" />
                     <span className="text-sm text-gray-600">
-                      {new Date(order.createdAt).toLocaleDateString()}
+                      {getOrderDate(order)?.toLocaleDateString() ?? "Unknown date"}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -230,7 +236,7 @@ export default function CustomerOrders() {
 
                 <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                   <div className="text-sm text-gray-500">
-                    Order placed at {new Date(order.createdAt).toLocaleTimeString()}
+                    Order placed at {getOrderDate(order)?.toLocaleTimeString() ?? "Unknown time"}
                   </div>
                   <div className="text-lg font-bold text-primary">
                     ₹{order.totalPrice}

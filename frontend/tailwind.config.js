@@ -7,16 +7,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: "var(--primary)",
-        "primary-dark": "var(--primary-dark)",
-        secondary: "var(--secondary)",
-        "secondary-dark": "var(--secondary-dark)",
-        accent: "var(--accent)",
-        dark: "var(--dark)",
-        "dark-gray": "var(--dark-gray)",
-        light: "var(--light)",
-        gray: "var(--gray)",
-        white: "var(--white)",
+        primary: "rgb(var(--primary) / <alpha-value>)",
+        "primary-strong": "rgb(var(--primary-strong) / <alpha-value>)",
+        secondary: "rgb(var(--secondary) / <alpha-value>)",
+        "secondary-foreground": "rgb(var(--secondary-foreground) / <alpha-value>)",
+        ink: "rgb(var(--ink) / <alpha-value>)",
+        sand: "rgb(var(--sand) / <alpha-value>)",
+        cream: "rgb(var(--cream) / <alpha-value>)",
+        accent: "rgb(var(--accent) / <alpha-value>)",
       },
       borderRadius: {
         sm: "var(--radius-sm)",
@@ -38,8 +36,8 @@ export default {
         xl: "var(--shadow-xl)",
       },
       fontFamily: {
-        main: "var(--font-main)",
-        code: "var(--font-code)",
+        display: "var(--font-display)",
+        body: "var(--font-body)",
       },
     },
   },

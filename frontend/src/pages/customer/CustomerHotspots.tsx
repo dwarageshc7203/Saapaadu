@@ -5,6 +5,36 @@ import { api } from "@/api/axios";
 import { Search, Filter, MapPin, Clock, Package, ShoppingCart } from "lucide-react";
 import type { Hotspot } from "@/types";
 
+const formatDuration = (minutes: number | null | undefined) => {
+  if (!minutes || minutes <= 0) return "0m";
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  if (hours && mins) return `${hours}h ${mins}m`;
+  if (hours) return `${hours}h`;
+  return `${mins}m`;
+};
+
+const getHotspotExpiry = (hotspot: Hotspot) => {
+  if (!hotspot.createdAt || !hotspot.duration) return null;
+  const started = new Date(hotspot.createdAt);
+  if (isNaN(started.getTime())) return null;
+  return new Date(started.getTime() + hotspot.duration * 60 * 1000);
+};
+
+const getRemainingLabel = (hotspot: Hotspot) => {
+  const expiry = getHotspotExpiry(hotspot);
+  if (!expiry) return formatDuration(hotspot.duration);
+  const remainingMs = expiry.getTime() - Date.now();
+  if (remainingMs <= 0) return "Expired";
+  const remainingMinutes = Math.ceil(remainingMs / 60000);
+  return `${formatDuration(remainingMinutes)} left`;
+};
+
+const isExpired = (hotspot: Hotspot) => {
+  const expiry = getHotspotExpiry(hotspot);
+  return Boolean(expiry && expiry.getTime() <= Date.now());
+};
+
 export default function CustomerHotspots() {
   const { user: _user } = useAuth();
   const [hotspots, setHotspots] = useState<Hotspot[]>([]);
@@ -207,7 +237,7 @@ export default function CustomerHotspots() {
                     </div>
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
-                      <span>{hotspot.duration}h</span>
+                      <span>{getRemainingLabel(hotspot)}</span>
                     </div>
                   </div>
 
@@ -229,15 +259,19 @@ export default function CustomerHotspots() {
                   {/* Order Button */}
                   <button
                     onClick={() => openOrderModal(hotspot)}
-                    disabled={hotspot.mealCount === 0}
+                    disabled={hotspot.mealCount === 0 || isExpired(hotspot)}
                     className={`btn w-full ${
-                      hotspot.mealCount > 0 
+                      hotspot.mealCount > 0 && !isExpired(hotspot)
                         ? 'btn-primary' 
                         : 'btn-outline cursor-not-allowed opacity-50'
                     }`}
                   >
                     <ShoppingCart className="w-4 h-4 mr-2" />
-                    {hotspot.mealCount > 0 ? 'Place Order' : 'Out of Stock'}
+                    {isExpired(hotspot)
+                      ? "Expired"
+                      : hotspot.mealCount > 0
+                      ? 'Place Order'
+                      : 'Out of Stock'}
                   </button>
                 </div>
               </div>
@@ -266,6 +300,12 @@ export default function CustomerHotspots() {
             <h3 className="text-lg font-semibold text-dark mb-4">
               Place Order - {orderModal.hotspot.mealName}
             </h3>
+
+            {isExpired(orderModal.hotspot) && (
+              <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-700">
+                This hotspot has expired. Please choose another one.
+              </div>
+            )}
             
             <div className="space-y-4 mb-6">
               <div>
@@ -300,6 +340,7 @@ export default function CustomerHotspots() {
               <button
                 onClick={() => handleOrder(orderModal.hotspot!, orderModal.quantity)}
                 className="btn btn-primary flex-1"
+                disabled={isExpired(orderModal.hotspot)}
               >
                 Confirm Order
               </button>

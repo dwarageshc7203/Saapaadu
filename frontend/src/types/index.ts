@@ -39,6 +39,7 @@ export interface Hotspot {
   mealCount: number;
   price: number;
   duration: number;
+  createdAt?: string | null;
 }
 
 export interface Customer {
@@ -54,14 +55,15 @@ export interface Customer {
 }
 
 export interface Order {
-  otime: string | number | Date;
+  otime?: string | number | Date | null;
   oid: number;
   cid: number;
   uid: number;
   hid: number;
   mealName: string;
-  mealCount: number;
-  createdAt: string; // renamed from otime
+  mealCount?: number;
+  quantity?: number;
+  createdAt?: string | null;
   totalPrice: number;
   status: "pending" | "confirmed" | "completed" | "cancelled";
   hotspot?: Hotspot;

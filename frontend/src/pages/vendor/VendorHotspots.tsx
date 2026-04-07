@@ -38,9 +38,28 @@ export default function VendorHotspots() {
     mealName: "",
     mealCount: 0,
     price: 0,
-    duration: 0,
+    duration: 1,
     veg_nonveg: "veg",
   });
+
+  const getRemainingLabel = (hotspot: Hotspot) => {
+    if (!hotspot.createdAt || !hotspot.duration) {
+      return `${Math.floor(hotspot.duration / 60)}h ${hotspot.duration % 60}m`;
+    }
+    const started = new Date(hotspot.createdAt);
+    if (isNaN(started.getTime())) {
+      return `${Math.floor(hotspot.duration / 60)}h ${hotspot.duration % 60}m`;
+    }
+    const expiry = new Date(started.getTime() + hotspot.duration * 60 * 1000);
+    const remainingMs = expiry.getTime() - Date.now();
+    if (remainingMs <= 0) return "Expired";
+    const remainingMinutes = Math.ceil(remainingMs / 60000);
+    const hours = Math.floor(remainingMinutes / 60);
+    const mins = remainingMinutes % 60;
+    if (hours && mins) return `${hours}h ${mins}m left`;
+    if (hours) return `${hours}h left`;
+    return `${mins}m left`;
+  };
 
   useEffect(() => {
     loadHotspots();
@@ -59,16 +78,21 @@ export default function VendorHotspots() {
     }
   };
 
+  const toDurationMinutes = (hours: number) => Math.max(1, hours) * 60;
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.post("/hotspots", formData);
+      await api.post("/hotspots", {
+        ...formData,
+        duration: toDurationMinutes(formData.duration),
+      });
       setShowCreateForm(false);
       setFormData({
         mealName: "",
         mealCount: 0,
         price: 0,
-        duration: 0,
+        duration: 1,
         veg_nonveg: "veg",
       });
       loadHotspots();
@@ -84,13 +108,16 @@ export default function VendorHotspots() {
     if (!editingHotspot) return;
 
     try {
-      await api.patch(`/hotspots/${editingHotspot.hid}`, formData);
+      await api.patch(`/hotspots/${editingHotspot.hid}`, {
+        ...formData,
+        duration: toDurationMinutes(formData.duration),
+      });
       setEditingHotspot(null);
       setFormData({
         mealName: "",
         mealCount: 0,
         price: 0,
-        duration: 0,
+        duration: 1,
         veg_nonveg: "veg",
       });
       loadHotspots();
@@ -116,11 +143,14 @@ export default function VendorHotspots() {
 
   const startEdit = (hotspot: Hotspot) => {
     setEditingHotspot(hotspot);
+    const durationHours = hotspot.duration
+      ? Math.max(1, Math.round(hotspot.duration / 60))
+      : 1;
     setFormData({
       mealName: hotspot.mealName,
       mealCount: hotspot.mealCount,
       price: hotspot.price,
-      duration: hotspot.duration,
+      duration: durationHours,
       veg_nonveg: hotspot.veg_nonveg,
     });
   };
@@ -131,7 +161,7 @@ export default function VendorHotspots() {
       mealName: "",
       mealCount: 0,
       price: 0,
-      duration: 0,
+      duration: 1,
       veg_nonveg: "veg",
     });
   };
@@ -382,11 +412,9 @@ export default function VendorHotspots() {
                      hotspot.veg_nonveg === 'nonveg' ? 'Non-Vegetarian' : 'Both'}
                   </span>
                   <div className="flex items-center gap-1 text-sm text-gray-500">
-  <Clock className="w-4 h-4" />
-  <span>
-    {Math.floor(hotspot.duration / 60)}h {hotspot.duration % 60}m left
-  </span>
-</div>
+                    <Clock className="w-4 h-4" />
+                    <span>{getRemainingLabel(hotspot)}</span>
+                  </div>
 
                 </div>
 

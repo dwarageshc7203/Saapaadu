@@ -1,0 +1,26 @@
+.vscode/
+.idea/
+*.iml
+
+# Env files
+.env
+.env.*
+
+# Logs
+logs/
+*.log
+
+# Java/Maven
+backend/target/
+**/target/
+
+# Node/Vite
+frontend/node_modules/
+**/node_modules/
+frontend/dist/
+**/dist/
+**/dist-ssr/
+*.local
+
+# OS
+.DS_Store

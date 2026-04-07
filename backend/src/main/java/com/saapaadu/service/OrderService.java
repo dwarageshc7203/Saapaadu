@@ -15,6 +15,7 @@ import com.saapaadu.repository.OrderRepository;
 import com.saapaadu.repository.UserRepository;
 import com.saapaadu.repository.VendorRepository;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -64,6 +65,15 @@ public class OrderService {
 
     Hotspot hotspot = hotspotRepository.findById(dto.getHid())
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Hotspot not found"));
+
+    Integer durationMinutes = hotspot.getDuration();
+    LocalDateTime createdAt = hotspot.getCreatedAt();
+    if (durationMinutes != null && durationMinutes > 0 && createdAt != null) {
+      LocalDateTime expiresAt = createdAt.plusMinutes(durationMinutes);
+      if (LocalDateTime.now().isAfter(expiresAt)) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Hotspot has expired");
+      }
+    }
 
     BigDecimal price = hotspot.getPrice() != null ? hotspot.getPrice() : BigDecimal.ZERO;
     BigDecimal totalPrice = price.multiply(BigDecimal.valueOf(dto.getQuantity()));
