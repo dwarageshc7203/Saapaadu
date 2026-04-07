@@ -1,0 +1,46 @@
+server:
+  port: ${PORT:3000}
+  forward-headers-strategy: framework
+  servlet:
+    context-path: /api
+    session:
+      cookie:
+        http-only: true
+        same-site: ${COOKIE_SAMESITE:Lax}
+        secure: ${COOKIE_SECURE:false}
+
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:demo}}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:dwarageshdc}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USER:}
+    password: ${MAIL_PASS:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:}
+            client-secret: ${GOOGLE_CLIENT_SECRET:}
+            scope:
+              - openid
+              - profile
+              - email
+
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}
+  cors-origins: ${CORS_ORIGINS:http://localhost:5173}
