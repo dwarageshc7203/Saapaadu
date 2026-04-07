@@ -5,10 +5,18 @@ import { api } from "@/api/axios";
 import { Clock, CheckCircle, XCircle, AlertCircle, Package, MapPin, Calendar } from "lucide-react";
 import type { Order } from "@/types";
 
+const parseTimestamp = (value: string | number | Date | null | undefined) => {
+  if (!value) return null;
+  if (value instanceof Date) return value;
+  const raw = String(value).trim();
+  if (!raw) return null;
+  const hasTimezone = /[zZ]|[+-]\d{2}:?\d{2}$/.test(raw);
+  const parsed = new Date(hasTimezone ? raw : `${raw}Z`);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
 const getOrderDate = (order: Order) => {
-  const timestamp = order.createdAt ?? order.otime;
-  const date = timestamp ? new Date(timestamp) : null;
-  return date && !isNaN(date.getTime()) ? date : null;
+  return parseTimestamp(order.createdAt ?? order.otime);
 };
 
 interface OrderStats {

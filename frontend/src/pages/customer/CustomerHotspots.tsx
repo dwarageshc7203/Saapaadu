@@ -14,10 +14,20 @@ const formatDuration = (minutes: number | null | undefined) => {
   return `${mins}m`;
 };
 
+const parseTimestamp = (value: string | Date | null | undefined) => {
+  if (!value) return null;
+  if (value instanceof Date) return value;
+  const raw = String(value).trim();
+  if (!raw) return null;
+  const hasTimezone = /[zZ]|[+-]\d{2}:?\d{2}$/.test(raw);
+  const parsed = new Date(hasTimezone ? raw : `${raw}Z`);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
 const getHotspotExpiry = (hotspot: Hotspot) => {
   if (!hotspot.createdAt || !hotspot.duration) return null;
-  const started = new Date(hotspot.createdAt);
-  if (isNaN(started.getTime())) return null;
+  const started = parseTimestamp(hotspot.createdAt);
+  if (!started) return null;
   return new Date(started.getTime() + hotspot.duration * 60 * 1000);
 };
 

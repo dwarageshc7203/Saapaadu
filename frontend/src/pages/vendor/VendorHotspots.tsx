@@ -43,12 +43,22 @@ export default function VendorHotspots() {
     veg_nonveg: "veg",
   });
 
+  const parseTimestamp = (value: string | Date | null | undefined) => {
+    if (!value) return null;
+    if (value instanceof Date) return value;
+    const raw = String(value).trim();
+    if (!raw) return null;
+    const hasTimezone = /[zZ]|[+-]\d{2}:?\d{2}$/.test(raw);
+    const parsed = new Date(hasTimezone ? raw : `${raw}Z`);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  };
+
   const getRemainingLabel = (hotspot: Hotspot) => {
     if (!hotspot.createdAt || !hotspot.duration) {
       return `${Math.floor(hotspot.duration / 60)}h ${hotspot.duration % 60}m`;
     }
-    const started = new Date(hotspot.createdAt);
-    if (isNaN(started.getTime())) {
+    const started = parseTimestamp(hotspot.createdAt);
+    if (!started) {
       return `${Math.floor(hotspot.duration / 60)}h ${hotspot.duration % 60}m`;
     }
     const expiry = new Date(started.getTime() + hotspot.duration * 60 * 1000);
