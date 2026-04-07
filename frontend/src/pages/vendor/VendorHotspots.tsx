@@ -16,6 +16,7 @@ interface Hotspot {
   duration: number;
   veg_nonveg: string;
   shopImage?: string;
+  createdAt?: string | null;
 }
 
 interface CreateHotspotForm {
